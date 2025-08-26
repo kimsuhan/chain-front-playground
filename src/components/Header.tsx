@@ -4,7 +4,7 @@
 import { useWallet } from "@/contexts/WalletContext";
 import { useSocket } from "@/hooks/useSocket";
 import { checkNetworkConnection } from "@/lib/web3";
-import { BarChart3, Blocks, ChevronDown, Coins, CreditCard, Grid3X3, Search, User, Wallet } from "lucide-react";
+import { BarChart3, Blocks, ChevronDown, Coins, CreditCard, Grid3X3, Search, User, Wallet, ArrowLeftRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -193,6 +193,20 @@ export default function Header() {
                       <div>
                         <div className="font-medium">토큰 팩토리</div>
                         <div className="text-xs text-gray-500">ERC-20 토큰 발행</div>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/dex"
+                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                    onClick={() => setIsAppsOpen(false)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <ArrowLeftRight className="w-4 h-4" />
+                      <div>
+                        <div className="font-medium">간단거래소</div>
+                        <div className="text-xs text-gray-500">토큰 교환</div>
                       </div>
                     </div>
                   </Link>
