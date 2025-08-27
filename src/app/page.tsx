@@ -4,7 +4,7 @@
 import ErrorMessage from "@/components/ErrorMessage";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSocket } from "@/hooks/useSocket";
-import { BlockInfo, getLatestBlock, getRecentBlocks, provider } from "@/lib/web3";
+import { BlockInfo, getBlocksFromAPI, provider } from "@/lib/web3";
 import { Home, Lightbulb, Package, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -34,24 +34,32 @@ export default function Dashboard() {
       setIsLoading(true);
       setError(null);
 
-      // 여러 데이터를 동시에 가져오기 (병렬 처리)
-      const [latest, recent, gasPrice, network] = await Promise.all([
-        getLatestBlock(),
-        getRecentBlocks(5),
-        provider.getFeeData(),
-        provider.getNetwork(),
+      // API에서 최신 블록들 가져오기 (5개)
+      const { blocks: apiBlocks } = await getBlocksFromAPI(5, 0);
+      
+      // 추가 네트워크 정보는 RPC에서 가져오기
+      const [gasPrice, network] = await Promise.all([
+        provider.getFeeData().catch(() => ({ gasPrice: BigInt(0) })),
+        provider.getNetwork().catch(() => ({ chainId: BigInt(0) })),
       ]);
 
-      setLatestBlock(latest);
-      setRecentBlocks(recent);
-      setNetworkStats({
-        blockHeight: latest?.number || 0,
-        gasPrice: gasPrice.gasPrice?.toString() || "0",
-        chainId: Number(network.chainId),
-      });
+      if (apiBlocks.length > 0) {
+        // 최신 블록 (첫 번째 블록)
+        const latest = apiBlocks[0];
+        setLatestBlock(latest);
+        setRecentBlocks(apiBlocks);
+        
+        setNetworkStats({
+          blockHeight: latest.number || 0,
+          gasPrice: gasPrice.gasPrice?.toString() || "0",
+          chainId: Number(network.chainId),
+        });
+      } else {
+        throw new Error("API에서 블록 데이터를 가져올 수 없습니다.");
+      }
     } catch (err) {
       console.error("대시보드 데이터 로딩 실패:", err);
-      setError("데이터를 불러오는데 실패했습니다. 테스트넷 연결 상태를 확인해주세요.");
+      setError("데이터를 불러오는데 실패했습니다. API 서버 연결 상태를 확인해주세요.");
     } finally {
       setIsLoading(false);
     }

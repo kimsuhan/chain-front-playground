@@ -15,7 +15,7 @@ export default function BlockDetailPage() {
   const blockId = params?.id as string;
 
   // 상태 관리
-  const [block, setBlock] = useState<BlockInfo | null>(null);
+  const [block, setBlock] = useState<BlockInfo & { transactions?: any[] } | null>(null);
   const [transactions, setTransactions] = useState<TransactionInfo[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +37,8 @@ export default function BlockDetailPage() {
         return;
       }
 
-      // 블록 정보와 트랜잭션을 동시에 가져오기
-      const [blockData, transactionData] = await Promise.all([
-        getBlockFromAPI(blockNumber),
-        getTransactionsFromBlock(blockNumber),
-      ]);
+      // 블록 정보 가져오기 (API에서 트랜잭션 포함)
+      const blockData = await getBlockFromAPI(blockNumber);
 
       if (!blockData) {
         setError(`블록 #${blockNumber}을 찾을 수 없습니다.`);
@@ -49,7 +46,29 @@ export default function BlockDetailPage() {
       }
 
       setBlock(blockData);
-      setTransactions(transactionData);
+
+      // API에서 받은 트랜잭션 데이터 변환
+      if (Array.isArray(blockData.transactions)) {
+        const formattedTransactions: TransactionInfo[] = blockData.transactions.map((tx: any) => ({
+          hash: tx.hash || tx.transactionHash || "",
+          blockNumber: blockData.number,
+          from: tx.from || "",
+          to: tx.to || "",
+          value: tx.value ? (typeof tx.value === 'string' && tx.value.startsWith('0x') 
+            ? parseFloat(parseInt(tx.value, 16).toString()) / Math.pow(10, 18)
+            : parseFloat(tx.value) / Math.pow(10, 18)
+          ).toString() : "0",
+          gasUsed: tx.gasUsed?.toString() || tx.gas?.toString() || "",
+          gasPrice: tx.gasPrice?.toString() || "0",
+          timestamp: blockData.timestamp,
+          status: tx.status !== undefined ? tx.status : 1,
+        }));
+        setTransactions(formattedTransactions);
+      } else {
+        // API에서 트랜잭션 배열이 없으면 RPC로 폴백
+        const transactionData = await getTransactionsFromBlock(blockNumber);
+        setTransactions(transactionData);
+      }
     } catch (err) {
       console.error("블록 데이터 로딩 실패:", err);
       setError("블록 데이터를 불러오는데 실패했습니다.");

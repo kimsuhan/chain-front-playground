@@ -46,6 +46,7 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:4001  # Socket.io server URL
 ## Architecture Overview
 
 ### Core Structure
+
 - **Next.js App Router**: All pages in `src/app/` directory with TypeScript
 - **Real-time Updates**: Socket.io integration for live blockchain data
 - **Dual Data Sources**: Direct RPC calls via ethers.js + REST API fallback
@@ -54,31 +55,36 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:4001  # Socket.io server URL
 ### Key Modules
 
 **`src/lib/web3.ts`** - Central blockchain utility layer:
+
 - Direct RPC communication via ethers.js JsonRpcProvider
 - Typed interfaces: `BlockInfo`, `TransactionInfo`
 - API integration functions with Redis caching support
 - Network connection health checks
 
 **`src/hooks/useSocket.ts`** - Real-time blockchain updates:
+
 - Socket.io client for live block notifications
 - Automatic subscription management
 - Connection state handling with reconnection logic
 
 **`src/contexts/WalletContext.tsx`** - MetaMask wallet integration:
+
 - Connection state management
 - Account change detection
 - Wallet interaction utilities
 
 ### Page Structure
+
 - **Dashboard** (`/`): Network overview with real-time stats
 - **Block Explorer** (`/blocks/`, `/blocks/[id]/`): Paginated block listing and details
 - **Transaction Explorer** (`/transactions/`, `/transactions/[hash]/`): Transaction history and details
 - **Account Search** (`/accounts/`): Address lookup with balance and activity
-- **Specialized Features**: 
+- **Specialized Features**:
   - Token Factory (`/token-factory/`): ERC-20 token management
   - Uniswap V2 Integration (`/uniswap-v2/`): DEX interactions
 
 ### Component Architecture
+
 - **Shared Components**: `Header`, `LoadingSpinner`, `ErrorMessage`
 - **Specialized**: `MerkleTreeVisualization` for advanced cryptographic displays
 - **Layout**: Root layout with Korean locale and Tailwind styling
@@ -86,21 +92,25 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:4001  # Socket.io server URL
 ## Development Patterns
 
 ### Data Fetching Strategy
+
 1. **Primary**: Direct RPC calls via ethers.js for real-time accuracy
 2. **Fallback**: REST API with Redis caching for performance
 3. **Real-time**: Socket.io for live updates without polling
 
 ### Error Handling
+
 - Graceful degradation when RPC/API unavailable
 - Korean-language error messages for user friendliness
 - Console logging for debugging (Korean comments in code)
 
 ### TypeScript Configuration
+
 - Strict mode enabled with `@/*` path aliases
 - Next.js plugin integration
 - Target ES2017 for broad compatibility
 
 ## ESLint Configuration
+
 - Next.js + TypeScript rules
 - Disabled rules: `react-hooks/exhaustive-deps`, `@typescript-eslint/no-explicit-any`
 - Custom config in `eslint.config.mjs`
@@ -108,8 +118,9 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:4001  # Socket.io server URL
 ## API Integration Patterns
 
 The application communicates with a separate blockchain API server (typically on port 15000):
+
 - `/block?limit=N&offset=N` - Paginated block data
-- `/block/redis/{blockNumber}` - Cached block details
+- `/block/{blockNumber}` - Cached block details
 - `/block/transactions?limit=N&offset=N` - Transaction listing
 - `/token-factory/tokens?limit=N&offset=N` - Token data
 

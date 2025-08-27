@@ -125,7 +125,7 @@ const TOKEN_FACTORY_ABI = [
 ];
 
 // TODO: 실제 Token Factory 컨트랙트 주소로 교체 필요
-const TOKEN_FACTORY_ADDRESS = "0xCfEB869F69431e42cdB54A4F4f105C19C080A601";
+const TOKEN_FACTORY_ADDRESS = "0x78060e00B2d224e5348e4c87F5416642D32A4AFe";
 
 // ERC-20 토큰 ABI (기본 함수들)
 const ERC20_ABI = [
@@ -174,9 +174,11 @@ export default function TokenFactory() {
   >("idle");
   const [deploymentMessage, setDeploymentMessage] = useState("");
   const [deployedTokens, setDeployedTokens] = useState<DeployedToken[]>([]);
-  
+
   // 토큰별 잔액 로딩 상태 관리
-  const [balanceLoadingStates, setBalanceLoadingStates] = useState<{[address: string]: boolean}>({});
+  const [balanceLoadingStates, setBalanceLoadingStates] = useState<{
+    [address: string]: boolean;
+  }>({});
 
   // 페이징 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -366,9 +368,9 @@ export default function TokenFactory() {
         if (rawSupply && rawSupply !== "0") {
           try {
             const supplyString = rawSupply.toString();
-            
+
             // 이미 소수점 형태인지 확인 (예: "1000.0" 또는 "1000")
-            if (supplyString.includes('.') || supplyString.length < 15) {
+            if (supplyString.includes(".") || supplyString.length < 15) {
               // 작은 수이거나 소수점이 있으면 그대로 사용
               formattedSupply = parseFloat(supplyString).toString();
             } else {
@@ -381,7 +383,7 @@ export default function TokenFactory() {
             formattedSupply = rawSupply.toString();
           }
         }
-        
+
         return {
           symbol: token.symbol || "N/A",
           name: token.name || "Unknown Token",
@@ -398,12 +400,11 @@ export default function TokenFactory() {
       setDeployedTokens(formattedTokens);
       setTotalTokens(total);
       setCurrentPage(page);
-      
+
       // 지갑이 연결된 경우에만 잔액을 비동기로 조회
       if (isWalletConnected && walletAddress) {
         loadTokenBalances(formattedTokens);
       }
-
     } catch (error) {
       console.error("토큰 목록 로딩 실패:", error);
       // 에러가 발생해도 기존 로컬 토큰들은 유지
@@ -417,10 +418,10 @@ export default function TokenFactory() {
     if (!isWalletConnected || !walletAddress) return;
 
     // 각 토큰별로 잔액 로딩 상태 설정
-    tokens.forEach(token => {
-      setDeployedTokens(prevTokens => 
-        prevTokens.map(prevToken => 
-          prevToken.address === token.address 
+    tokens.forEach((token) => {
+      setDeployedTokens((prevTokens) =>
+        prevTokens.map((prevToken) =>
+          prevToken.address === token.address
             ? { ...prevToken, balanceLoading: true }
             : prevToken
         )
@@ -432,9 +433,9 @@ export default function TokenFactory() {
       try {
         const balance = await getTokenBalance(token.address);
         // 개별 토큰 잔액 업데이트
-        setDeployedTokens(prevTokens => 
-          prevTokens.map(prevToken => 
-            prevToken.address === token.address 
+        setDeployedTokens((prevTokens) =>
+          prevTokens.map((prevToken) =>
+            prevToken.address === token.address
               ? { ...prevToken, balance, balanceLoading: false }
               : prevToken
           )
@@ -442,9 +443,9 @@ export default function TokenFactory() {
       } catch (error) {
         console.error(`토큰 ${token.symbol} 잔액 조회 실패:`, error);
         // 에러 발생 시에도 로딩 상태 해제
-        setDeployedTokens(prevTokens => 
-          prevTokens.map(prevToken => 
-            prevToken.address === token.address 
+        setDeployedTokens((prevTokens) =>
+          prevTokens.map((prevToken) =>
+            prevToken.address === token.address
               ? { ...prevToken, balance: "0", balanceLoading: false }
               : prevToken
           )
@@ -467,58 +468,64 @@ export default function TokenFactory() {
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
-      
+
       // 현재 네트워크 확인
       const network = await provider.getNetwork();
       const targetChainId = process.env.CHAIN_ID || "1337";
-      
+
       console.log("현재 네트워크 Chain ID:", network.chainId.toString());
       console.log("목표 네트워크 Chain ID:", targetChainId);
-      
+
       // 네트워크가 다르면 변경 요청
       if (network.chainId.toString() !== targetChainId) {
         setDeploymentMessage("올바른 네트워크로 변경 중...");
-        
+
         try {
           // 네트워크 변경 요청
           await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
+            method: "wallet_switchEthereumChain",
             params: [{ chainId: `0x${parseInt(targetChainId).toString(16)}` }],
           });
-          
+
           // 네트워크 변경 후 잠시 대기
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         } catch (switchError: any) {
           // 네트워크가 추가되지 않은 경우 추가 시도
           if (switchError.code === 4902) {
             try {
-              const rpcUrl = process.env.RPC_URL || "http://forlong.io:8545";
+              const rpcUrl = process.env.RPC_URL;
               await window.ethereum.request({
-                method: 'wallet_addEthereumChain',
-                params: [{
-                  chainId: `0x${parseInt(targetChainId).toString(16)}`,
-                  chainName: 'Local Testnet',
-                  rpcUrls: [rpcUrl],
-                  nativeCurrency: {
-                    name: 'ETH',
-                    symbol: 'ETH',
-                    decimals: 18
-                  }
-                }],
+                method: "wallet_addEthereumChain",
+                params: [
+                  {
+                    chainId: `0x${parseInt(targetChainId).toString(16)}`,
+                    chainName: "Local Testnet",
+                    rpcUrls: [rpcUrl],
+                    nativeCurrency: {
+                      name: "ETH",
+                      symbol: "ETH",
+                      decimals: 18,
+                    },
+                  },
+                ],
               });
             } catch (addError) {
               setDeploymentStatus("error");
-              setDeploymentMessage("네트워크 추가에 실패했습니다. MetaMask에서 수동으로 네트워크를 설정해주세요.");
+              setDeploymentMessage(
+                "네트워크 추가에 실패했습니다. MetaMask에서 수동으로 네트워크를 설정해주세요."
+              );
               return;
             }
           } else {
             setDeploymentStatus("error");
-            setDeploymentMessage("네트워크 변경이 취소되었습니다. 올바른 네트워크에서 다시 시도해주세요.");
+            setDeploymentMessage(
+              "네트워크 변경이 취소되었습니다. 올바른 네트워크에서 다시 시도해주세요."
+            );
             return;
           }
         }
       }
-      
+
       setDeploymentMessage("토큰 배포 중...");
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
@@ -902,14 +909,18 @@ export default function TokenFactory() {
                                 {token.balanceLoading ? (
                                   <div className="flex items-center space-x-2">
                                     <Loader className="w-4 h-4 animate-spin text-blue-500" />
-                                    <div className="text-sm text-gray-500">로딩중...</div>
+                                    <div className="text-sm text-gray-500">
+                                      로딩중...
+                                    </div>
                                   </div>
                                 ) : (
                                   <>
                                     <div className="text-sm text-gray-900 font-medium">
                                       {token.balance !== undefined
                                         ? parseFloat(token.balance || "0") > 0
-                                          ? parseFloat(token.balance || "0").toLocaleString("ko-KR", {
+                                          ? parseFloat(
+                                              token.balance || "0"
+                                            ).toLocaleString("ko-KR", {
                                               minimumFractionDigits: 0,
                                               maximumFractionDigits: 6,
                                             })

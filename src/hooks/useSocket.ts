@@ -55,23 +55,35 @@ export function useSocket() {
       const blocksData = Array.isArray(data) ? data : [data];
 
       // 백엔드에서 받은 데이터를 BlockInfo 배열로 변환
-      const newBlocks: BlockInfo[] = blocksData.map((blockData: any) => ({
-        number: blockData.number || 0,
-        hash: blockData.hash || "",
-        timestamp: blockData.timestamp || 0,
-        transactionCount: blockData.transactionCount || 0,
-        gasUsed: blockData.gasUsed || "0",
-        gasLimit: blockData.gasLimit || "0",
-        miner: blockData.miner || "",
-        parentHash: blockData.parentHash || "",
-        parentBeaconBlockRoot: blockData.parentBeaconBlockRoot || "",
-        nonce: blockData.nonce || "",
-        difficulty: blockData.difficulty || "0",
-        stateRoot: blockData.stateRoot || "",
-        receiptsRoot: blockData.receiptsRoot || "",
-        blobGasUsed: blockData.blobGasUsed || "0",
-        excessBlobGas: blockData.excessBlobGas || "0",
-      }));
+      const newBlocks: BlockInfo[] = blocksData.map((blockData: any) => {
+        // transactionCount 처리: transactions 배열의 길이 또는 transactionCount 필드 사용
+        let transactionCount = 0;
+        if (Array.isArray(blockData.transactions)) {
+          transactionCount = blockData.transactions.length;
+        } else if (typeof blockData.transactionCount === 'number') {
+          transactionCount = blockData.transactionCount;
+        } else if (typeof blockData.transactions === 'number') {
+          transactionCount = blockData.transactions;
+        }
+
+        return {
+          number: blockData.number || 0,
+          hash: blockData.hash || "",
+          timestamp: blockData.timestamp || 0,
+          transactionCount,
+          gasUsed: blockData.gasUsed || "0",
+          gasLimit: blockData.gasLimit || "0",
+          miner: blockData.miner || "",
+          parentHash: blockData.parentHash || "",
+          parentBeaconBlockRoot: blockData.parentBeaconBlockRoot || "",
+          nonce: blockData.nonce || "",
+          difficulty: blockData.difficulty || "0",
+          stateRoot: blockData.stateRoot || "",
+          receiptsRoot: blockData.receiptsRoot || "",
+          blobGasUsed: blockData.blobGasUsed || "0",
+          excessBlobGas: blockData.excessBlobGas || "0",
+        };
+      });
 
       console.log("변환된 블록 데이터:", newBlocks);
       console.log("상태 업데이트 전 lastBlocks:", lastBlocks);

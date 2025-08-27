@@ -2,7 +2,7 @@
 import { ethers, Transaction } from "ethers";
 
 // 노드 연결 설정
-export const LOCAL_RPC_URL = process.env.RPC_URL || "http://forlong.io:8545";
+export const LOCAL_RPC_URL = process.env.RPC_URL;
 
 // 이더리움 프로바이더 설정 (노드에 연결)
 export const provider = new ethers.JsonRpcProvider(LOCAL_RPC_URL);
@@ -85,7 +85,9 @@ export async function getLatestBlock(): Promise<BlockInfo | null> {
 }
 
 // 특정 블록 정보 가져오기 (블록 번호로 조회)
-export async function getBlockByNumber(blockNumber: number): Promise<BlockInfo | null> {
+export async function getBlockByNumber(
+  blockNumber: number
+): Promise<BlockInfo | null> {
   try {
     const block = await provider.getBlock(blockNumber, true);
     if (!block) return null;
@@ -114,7 +116,9 @@ export async function getBlockByNumber(blockNumber: number): Promise<BlockInfo |
 }
 
 // 최근 블록들 가져오기 (개수 지정)
-export async function getRecentBlocks(count: number = 10): Promise<BlockInfo[]> {
+export async function getRecentBlocks(
+  count: number = 10
+): Promise<BlockInfo[]> {
   try {
     const latestBlockNumber = await provider.getBlockNumber();
     const blocks: BlockInfo[] = [];
@@ -138,7 +142,9 @@ export async function getRecentBlocks(count: number = 10): Promise<BlockInfo[]> 
 }
 
 // 트랜잭션 정보 가져오기
-export async function getTransactionByHash(txHash: string): Promise<TransactionInfo | null> {
+export async function getTransactionByHash(
+  txHash: string
+): Promise<TransactionInfo | null> {
   try {
     const tx = await provider.getTransaction(txHash);
     const receipt = await provider.getTransactionReceipt(txHash);
@@ -170,7 +176,9 @@ export async function getTransactionByHash(txHash: string): Promise<TransactionI
 }
 
 // 계정 잔액 조회
-export async function getAccountBalance(address: string): Promise<string | null> {
+export async function getAccountBalance(
+  address: string
+): Promise<string | null> {
   try {
     const balance = await provider.getBalance(address);
     return ethers.formatEther(balance);
@@ -181,7 +189,9 @@ export async function getAccountBalance(address: string): Promise<string | null>
 }
 
 // 특정 블록의 모든 트랜잭션 가져오기
-export async function getTransactionsFromBlock(blockNumber: number): Promise<TransactionInfo[]> {
+export async function getTransactionsFromBlock(
+  blockNumber: number
+): Promise<TransactionInfo[]> {
   try {
     const block = await provider.getBlock(blockNumber, true);
     if (!block || !block.transactions) return [];
@@ -237,7 +247,9 @@ export async function getBlocksFromAPI(
 ): Promise<{ blocks: BlockInfo[]; total: number }> {
   try {
     const apiUrl = process.env.API_URL || "http://localhost:4000";
-    const response = await fetch(`${apiUrl}/block?limit=${limit}&offset=${offset}`);
+    const response = await fetch(
+      `${apiUrl}/block?limit=${limit}&offset=${offset}`
+    );
 
     if (!response.ok) {
       throw new Error(`API 호출 실패: ${response.status}`);
@@ -247,12 +259,22 @@ export async function getBlocksFromAPI(
     const { data: blockStrings, total } = apiResponse;
 
     // JSON 문자열들을 파싱하여 BlockInfo 형태로 변환
-    const blocks: BlockInfo[] = blockStrings.map((blockData: BlockInfo) => {
+    const blocks: BlockInfo[] = blockStrings.map((blockData: any) => {
+      // transactionCount 처리: transactions 배열의 길이 또는 transactionCount 필드 사용
+      let transactionCount = 0;
+      if (Array.isArray(blockData.transactions)) {
+        transactionCount = blockData.transactions.length;
+      } else if (typeof blockData.transactionCount === "number") {
+        transactionCount = blockData.transactionCount;
+      } else if (typeof blockData.transactions === "number") {
+        transactionCount = blockData.transactions;
+      }
+
       return {
         number: blockData.number,
         hash: blockData.hash ?? "",
         timestamp: blockData.timestamp,
-        transactionCount: blockData.transactionCount || 0,
+        transactionCount,
         gasUsed: blockData.gasUsed ?? "", // API에서 gasUsed 정보가 없으므로 기본값
         gasLimit: blockData.gasLimit ?? "", // API에서 gasLimit 정보가 없으므로 기본값
         miner: blockData.miner ?? "",
@@ -274,11 +296,13 @@ export async function getBlocksFromAPI(
   }
 }
 
-// API에서 특정 블록 정보 가져오기
-export async function getBlockFromAPI(blockNumber: number): Promise<BlockInfo | null> {
+// API에서 특정 블록 정보 가져오기 (트랜잭션 포함)
+export async function getBlockFromAPI(
+  blockNumber: number
+): Promise<(BlockInfo & { transactions?: any[] }) | null> {
   try {
     const apiUrl = process.env.API_URL || "http://localhost:4000";
-    const response = await fetch(`${apiUrl}/block/redis/${blockNumber}`);
+    const response = await fetch(`${apiUrl}/block/${blockNumber}`);
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -296,11 +320,21 @@ export async function getBlockFromAPI(blockNumber: number): Promise<BlockInfo | 
     }
 
     // API에서 받은 데이터를 BlockInfo 형태로 변환
+    // transactionCount 처리: transactions 배열의 길이 또는 transactionCount 필드 사용
+    let transactionCount = 0;
+    if (Array.isArray(blockData.transactions)) {
+      transactionCount = blockData.transactions.length;
+    } else if (typeof blockData.transactionCount === "number") {
+      transactionCount = blockData.transactionCount;
+    } else if (typeof blockData.transactions === "number") {
+      transactionCount = blockData.transactions;
+    }
+
     return {
       number: blockData.number,
       hash: blockData.hash ?? "",
       timestamp: blockData.timestamp,
-      transactionCount: blockData.transactions || 0,
+      transactionCount,
       gasUsed: blockData.gasUsed ?? "",
       gasLimit: blockData.gasLimit ?? "",
       miner: blockData.miner ?? "",
@@ -312,9 +346,84 @@ export async function getBlockFromAPI(blockNumber: number): Promise<BlockInfo | 
       receiptsRoot: blockData.receiptsRoot ?? "",
       blobGasUsed: blockData.blobGasUsed ?? "",
       excessBlobGas: blockData.excessBlobGas ?? "",
-    };
+      transactions: Array.isArray(blockData.transactions)
+        ? blockData.transactions
+        : undefined,
+    } as BlockInfo & { transactions?: any[] };
   } catch (error) {
     console.error(`API에서 블록 ${blockNumber} 정보 가져오기 실패:`, error);
+    throw error;
+  }
+}
+
+// 토큰 정보 타입 정의
+export interface TokenInfo {
+  symbol: string;
+  name: string;
+  address: string;
+  initialSupply: string;
+  owner: string;
+  txHash: string;
+}
+
+// API에서 토큰 목록 가져오기
+export async function getTokensFromAPI(
+  limit: number = 20,
+  offset: number = 0
+): Promise<{ tokens: TokenInfo[]; total: number }> {
+  try {
+    const apiUrl = process.env.API_URL || "http://localhost:4000";
+    const response = await fetch(
+      `${apiUrl}/token-factory/tokens?limit=${limit}&offset=${offset}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`API 호출 실패: ${response.status}`);
+    }
+
+    const responseData = await response.json();
+
+    // 표준 응답 형식 확인 (data, total)
+    const tokensData = responseData.data || responseData;
+    const total = responseData.total || tokensData.length;
+
+    // API 응답을 TokenInfo 형태로 변환
+    const tokens: TokenInfo[] = tokensData.map((token: any) => {
+      // BigInt 형태의 totalSupply를 사람이 읽기 쉬운 형태로 변환
+      let formattedSupply = "0";
+      const rawSupply = token.totalSupply || token.initialSupply || "0";
+      if (rawSupply && rawSupply !== "0") {
+        try {
+          const supplyString = rawSupply.toString();
+
+          // 이미 소수점 형태인지 확인 (예: "1000.0" 또는 "1000")
+          if (supplyString.includes(".") || supplyString.length < 15) {
+            // 작은 수이거나 소수점이 있으면 그대로 사용
+            formattedSupply = parseFloat(supplyString).toString();
+          } else {
+            // 큰 수라면 wei에서 ether로 변환
+            const supplyInEther = ethers.formatEther(supplyString);
+            formattedSupply = supplyInEther;
+          }
+        } catch (error) {
+          console.error("Supply 변환 실패:", error);
+          formattedSupply = rawSupply.toString();
+        }
+      }
+
+      return {
+        symbol: token.symbol || "N/A",
+        name: token.name || "Unknown Token",
+        address: token.address || "0x0",
+        initialSupply: formattedSupply,
+        owner: token.owner || "0x0",
+        txHash: token.txHash || token.transactionHash || "0x0",
+      };
+    });
+
+    return { tokens, total };
+  } catch (error) {
+    console.error("API에서 토큰 목록 가져오기 실패:", error);
     throw error;
   }
 }
