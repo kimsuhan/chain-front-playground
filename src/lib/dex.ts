@@ -1,302 +1,352 @@
-export const DEX_CONTRACT_ADDRESS = "0xfEbC7E10D2F42cA476A06Af0c98248914f70C0e3";
+export const DEX_CONTRACT_ADDRESS =
+  "0xb6ae4e567C6C160A3d05856e688F2595098C1F86";
 
 export const DEX_ABI = [
   {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    inputs: [
+      {
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+    ],
+    name: "OwnableInvalidOwner",
+    type: "error",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
     ],
-    "name": "OwnableInvalidOwner",
-    "type": "error"
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
   },
   {
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "provider",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amountA",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amountB",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "liquidity",
+        type: "uint256",
+      },
     ],
-    "name": "OwnableUnauthorizedAccount",
-    "type": "error"
+    name: "LiquidityAdded",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "provider",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "provider",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "tokenA",
-        "type": "address"
+        indexed: false,
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "tokenB",
-        "type": "address"
+        indexed: false,
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountA",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "liquidity",
+        type: "uint256",
       },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountB",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      }
     ],
-    "name": "LiquidityAdded",
-    "type": "event"
+    name: "LiquidityRemoved",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "previousOwner",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
       },
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
-    "name": "OwnershipTransferred",
-    "type": "event"
+    name: "OwnershipTransferred",
+    type: "event",
   },
   {
-    "anonymous": false,
-    "inputs": [
+    anonymous: false,
+    inputs: [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
+        indexed: false,
+        internalType: "address",
+        name: "tokenIn",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
+        indexed: false,
+        internalType: "address",
+        name: "tokenOut",
+        type: "address",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
+        indexed: false,
+        internalType: "uint256",
+        name: "amountIn",
+        type: "uint256",
       },
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amountOut",
-        "type": "uint256"
-      }
+        indexed: false,
+        internalType: "uint256",
+        name: "amountOut",
+        type: "uint256",
+      },
     ],
-    "name": "Swap",
-    "type": "event"
+    name: "Swap",
+    type: "event",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "tokenA",
-        "type": "address"
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "tokenB",
-        "type": "address"
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
       },
       {
-        "internalType": "uint256",
-        "name": "amountA",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "amountA",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "amountB",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "amountB",
+        type: "uint256",
+      },
     ],
-    "name": "addLiquidity",
-    "outputs": [
+    name: "addLiquidity",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "liquidity",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "tokenA",
-        "type": "address"
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "tokenB",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
+      },
     ],
-    "name": "getMyLiquidity",
-    "outputs": [
+    name: "getMyLiquidity",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "liquidity",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "liquidity",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
+    inputs: [],
+    name: "owner",
+    outputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        internalType: "address",
+        name: "",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    "name": "pools",
-    "outputs": [
+    name: "pools",
+    outputs: [
       {
-        "internalType": "uint256",
-        "name": "tokenAReserve",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "tokenAReserve",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "tokenBReserve",
-        "type": "uint256"
+        internalType: "uint256",
+        name: "tokenBReserve",
+        type: "uint256",
       },
       {
-        "internalType": "uint256",
-        "name": "totalLiquidity",
-        "type": "uint256"
-      }
+        internalType: "uint256",
+        name: "totalLiquidity",
+        type: "uint256",
+      },
     ],
-    "stateMutability": "view",
-    "type": "function"
+    stateMutability: "view",
+    type: "function",
   },
   {
-    "inputs": [],
-    "name": "renounceOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    inputs: [
       {
-        "internalType": "address",
-        "name": "tokenA",
-        "type": "address"
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "tokenB",
-        "type": "address"
-      }
-    ],
-    "name": "resetPool",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenIn",
-        "type": "address"
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
       },
       {
-        "internalType": "address",
-        "name": "tokenOut",
-        "type": "address"
+        internalType: "uint256",
+        name: "liquidity",
+        type: "uint256",
       },
-      {
-        "internalType": "uint256",
-        "name": "amountIn",
-        "type": "uint256"
-      }
     ],
-    "name": "swap",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "amountOut",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
-    "inputs": [
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        internalType: "address",
+        name: "tokenA",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenB",
+        type: "address",
+      },
     ],
-    "name": "transferOwnership",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
+    name: "resetPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenIn",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenOut",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amountIn",
+        type: "uint256",
+      },
+    ],
+    name: "swap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amountOut",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
