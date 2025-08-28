@@ -321,9 +321,23 @@ export default function TransactionsPage() {
 
               {/* 페이지 번호들 */}
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pageNum = Math.max(1, currentPage - 2) + i;
-                  if (pageNum > totalPages) return null;
+                {/* 첫 페이지 */}
+                {currentPage > 3 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="px-3 py-2 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      1
+                    </button>
+                    {currentPage > 4 && <span className="text-gray-400">...</span>}
+                  </>
+                )}
+
+                {/* 현재 페이지 주변 페이지들 */}
+                {Array.from({ length: 5 }, (_, i) => {
+                  const pageNum = currentPage - 2 + i;
+                  if (pageNum < 1 || pageNum > totalPages) return null;
 
                   return (
                     <button
@@ -339,6 +353,19 @@ export default function TransactionsPage() {
                     </button>
                   );
                 })}
+
+                {/* 마지막 페이지 */}
+                {currentPage < totalPages - 2 && (
+                  <>
+                    {currentPage < totalPages - 3 && <span className="text-gray-400">...</span>}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="px-3 py-2 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* 다음 페이지 버튼 */}

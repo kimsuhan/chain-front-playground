@@ -99,9 +99,7 @@ export default function BlocksPage() {
         return sortedBlocks;
       });
 
-      // 총 블록 수 업데이트 (가장 최신 블록 기준)
-      const latestBlock = lastBlocks[0];
-      setTotalBlocks((prev) => Math.max(prev, latestBlock.number + 1));
+      // 총 블록 수는 API에서 받은 값을 유지 (서버 보관 한도 고려)
     }
   }, [lastBlocks, currentPage]);
 
@@ -150,7 +148,7 @@ export default function BlocksPage() {
             블록 목록
           </h1>
           <p className="text-gray-600 mt-2">
-            총 {totalBlocks.toLocaleString()}개의 블록 (페이지 {currentPage} / {totalPages})
+            최근 {totalBlocks.toLocaleString()}개의 블록 (페이지 {currentPage} / {totalPages})
           </p>
         </div>
 
@@ -221,9 +219,13 @@ export default function BlocksPage() {
                   {/* 트랜잭션 수 */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="flex items-center">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                        {block.transactionCount}개
-                      </span>
+                      {block.transactionCount === 0 ? (
+                        <span className="text-gray-500">-</span>
+                      ) : (
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                          {block.transactionCount}개
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -275,7 +277,7 @@ export default function BlocksPage() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-700">
-              총 {totalBlocks.toLocaleString()}개 블록 중{" "}
+              최근 {totalBlocks.toLocaleString()}개 블록 중{" "}
               <span className="font-medium">
                 {(currentPage - 1) * BLOCKS_PER_PAGE + 1}-{Math.min(currentPage * BLOCKS_PER_PAGE, totalBlocks)}
               </span>

@@ -32,8 +32,8 @@ export default function BlockDetailPage() {
 
       const blockNumber = parseInt(blockId);
 
-      if (isNaN(blockNumber)) {
-        setError("올바르지 않은 블록 번호입니다.");
+      if (isNaN(blockNumber) || blockNumber < 0) {
+        setError("올바르지 않은 블록 번호입니다. 0 이상의 숫자를 입력해주세요.");
         return;
       }
 
@@ -41,7 +41,7 @@ export default function BlockDetailPage() {
       const blockData = await getBlockFromAPI(blockNumber);
 
       if (!blockData) {
-        setError(`블록 #${blockNumber}을 찾을 수 없습니다.`);
+        setError(`블록 #${blockNumber}이 존재하지 않습니다. 올바른 블록 번호를 입력해주세요.`);
         return;
       }
 
@@ -71,7 +71,16 @@ export default function BlockDetailPage() {
       }
     } catch (err) {
       console.error("블록 데이터 로딩 실패:", err);
-      setError("블록 데이터를 불러오는데 실패했습니다.");
+      
+      // 에러 메시지에 따라 다른 메시지 표시
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+        setError(`블록 #${blockNumber}이 존재하지 않습니다. 올바른 블록 번호를 입력해주세요.`);
+      } else if (errorMessage.includes('fetch') || errorMessage.includes('network')) {
+        setError("API 서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.");
+      } else {
+        setError("블록 데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -306,9 +306,9 @@ export async function getBlockFromAPI(
 
     if (!response.ok) {
       if (response.status === 404) {
-        return null;
+        return null; // 블록이 존재하지 않음
       }
-      throw new Error(`API 호출 실패: ${response.status}`);
+      throw new Error(`API 서버 오류: ${response.status} - ${response.statusText}`);
     }
 
     const blockData = await response.json();
